@@ -110,7 +110,6 @@ public class LocatorPlugin implements FlutterPlugin, MethodCallHandler {
                     }
                 }
             });
-
         }
     }
 
