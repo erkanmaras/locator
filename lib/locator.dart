@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:ui';
 import 'package:flutter/services.dart';
 
 class Locator {
@@ -64,14 +65,7 @@ class Locator {
 }
 
 class Location {
-  Location(
-      {this.longitude,
-      this.latitude,
-      this.altitude,
-      this.accuracy,
-      this.bearing,
-      this.speed,
-      this.time});
+  Location({this.latitude, this.longitude, this.altitude, this.accuracy, this.bearing, this.speed, this.time});
 
   final double latitude;
   final double longitude;
@@ -80,6 +74,21 @@ class Location {
   final double accuracy;
   final double speed;
   final double time;
+
+  @override
+  bool operator ==(Object o) {
+    return o is Location &&
+        o.latitude == latitude &&
+        o.longitude == longitude &&
+        o.altitude == altitude &&
+        o.accuracy == accuracy &&
+        o.bearing == bearing &&
+        o.speed == speed &&
+        o.time == time;
+  }
+
+  @override
+  int get hashCode => hashValues(latitude, longitude, altitude, accuracy, bearing, speed, time);
 }
 
 class LocatorException {}
