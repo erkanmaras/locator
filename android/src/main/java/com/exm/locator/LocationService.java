@@ -5,6 +5,7 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.ComponentName;
 import android.content.Intent;
 import android.location.Location;
 import android.os.Binder;
@@ -15,9 +16,11 @@ import android.os.IBinder;
 import android.os.Looper;
 import android.text.format.DateFormat;
 import android.util.Log;
+
 import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
@@ -25,6 +28,7 @@ import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+
 import java.util.Date;
 
 /**
@@ -199,29 +203,46 @@ public class LocationService extends Service {
 
         CharSequence text = getLocationText(mLocation);
 
-        // The PendingIntent that leads to a call to onStartCommand() in this service.
-        PendingIntent servicePendingIntent = PendingIntent.getService(this, 0, intent,
-                PendingIntent.FLAG_UPDATE_CURRENT);
-
-        // The PendingIntent to launch activity.
-        PendingIntent activityPendingIntent = PendingIntent.getActivity(this, 0,
-                new Intent(this, LocationService.class), 0);
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID)
-//                .addAction(R.drawable.ic_launch, getString(R.string.launch_activity),
-//                        activityPendingIntent)
-//                .addAction(R.drawable.ic_cancel, getString(R.string.remove_location_updates),
-//                        servicePendingIntent)
                 .setContentText(text)
                 .setContentTitle(NOTIFICATION_TITLE)
                 .setOngoing(true)
                 .setSound(null)
-                .setPriority(Notification.PRIORITY_HIGH)
-                .setSmallIcon(R.drawable.navigation_empty_icon)
+                .setSmallIcon(android.R.drawable.ic_dialog_map)
                 .setTicker(text)
                 .setWhen(System.currentTimeMillis());
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            builder.setPriority(NotificationCompat.PRIORITY_MAX);
+        }
+
+        Class<?> cls = getMainActivityClass();
+        if (cls != null) {
+            PendingIntent launchIntent = PendingIntent.getActivity(this, 0,
+                    new Intent(this, cls), PendingIntent.FLAG_UPDATE_CURRENT);
+            builder.setContentIntent(launchIntent);
+        }
+
+
         return builder.build();
+    }
+
+    private Class<?> getMainActivityClass() {
+        try {
+            Intent intent = this.getApplicationContext().getPackageManager().getLaunchIntentForPackage(this.getPackageName());
+            if (intent != null) {
+                ComponentName componentName = intent.getComponent();
+                if (componentName != null) {
+                    String className = componentName.getClassName();
+                    return Class.forName(className);
+                }
+            }
+
+        } catch (Exception e) {
+            Log.e(LOG_TAG, "main activity class cannot retrieve!." + e);
+        }
+        return null;
     }
 
     public void getLastLocation() {
@@ -243,7 +264,7 @@ public class LocationService extends Service {
         }
     }
 
-    public void getLastLocation(OnCompleteListener<Location>  listener) {
+    public void getLastLocation(OnCompleteListener<Location> listener) {
         try {
             mFusedLocationClient.getLastLocation()
                     .addOnCompleteListener(listener);
