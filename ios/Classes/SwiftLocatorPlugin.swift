@@ -28,13 +28,15 @@ public class SwiftLocatorPlugin: NSObject, FlutterPlugin, CLLocationManagerDeleg
         SwiftLocatorPlugin.channel?.invokeMethod("location", arguments: "method")
 
         if (call.method == "start_location_service") {
-            SwiftLocatorPlugin.channel?.invokeMethod("location", arguments: "start_location_service")            
-            SwiftLocatorPlugin.locationManager?.startUpdatingLocation() 
+            SwiftLocatorPlugin.channel?.invokeMethod("location", arguments: "start_location_service")
+            SwiftLocatorPlugin.locationManager?.startUpdatingLocation()
         } else if (call.method == "stop_location_service") {
             SwiftLocatorPlugin.channel?.invokeMethod("location", arguments: "stop_location_service")
             SwiftLocatorPlugin.locationManager?.stopUpdatingLocation()
         } else if (call.method == "last_location") {
-            result.success(locationToMap(SwiftLocatorPlugin.locationManager.location));
+            result(locationToMap(location:SwiftLocatorPlugin.locationManager?.location));
+        } else {
+            result(FlutterMethodNotImplemented);
         }
     }
     
@@ -45,20 +47,27 @@ public class SwiftLocatorPlugin: NSObject, FlutterPlugin, CLLocationManagerDeleg
     }
     
     public func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        SwiftLocatorPlugin.channel?.invokeMethod("location", arguments: locationToMap(locations.last!))
+        let map=locationToMap(location:locations.last!);
+        if(map != nil)
+        {
+            SwiftLocatorPlugin.channel?.invokeMethod("location", arguments: map)
+        }
     }
 
-
-    func locationToMap(location: CLLocation) -> [String:Any] {
-     let location = [
-            "speed": locations.last!.speed,
-            "altitude": locations.last!.altitude,
-            "latitude": locations.last!.coordinate.latitude,
-            "longitude": locations.last!.coordinate.longitude,
-            "accuracy": locations.last!.horizontalAccuracy,
-            "bearing": locations.last!.course,
-            "time": locations.last!.timestamp.timeIntervalSince1970 * 1000
-        ] as [String : Any]
-        return location;
-}
+    func locationToMap(location: CLLocation?) -> [String:Any]? {
+        if(location==nil)
+        {
+            return nil;
+        }
+      let map = [
+            "speed": location!.speed,
+            "altitude": location!.altitude,
+            "latitude": location!.coordinate.latitude,
+            "longitude": location!.coordinate.longitude,
+            "accuracy": location!.horizontalAccuracy,
+            "bearing": location!.course,
+            "time":location!.timestamp.timeIntervalSince1970 * 1000
+       ] as [String : Any]
+        return map;
+    }
 }
