@@ -5,13 +5,13 @@
 Pod::Spec.new do |s|
   s.name             = 'locator'
   s.version          = '0.0.1'
-  s.summary          = 'A new flutter plugin project.'
+  s.summary          = 'Flutter location plugin'
+  s.homepage         = 'https://github.com/erkanmaras/locator'
   s.description      = <<-DESC
-A new flutter plugin project.
-                       DESC
-  s.homepage         = 'http://example.com'
+  Flutter location plugin.
+                         DESC
   s.license          = { :file => '../LICENSE' }
-  s.author           = { 'Your Company' => 'email@example.com' }
+  s.author           = { 'erkan maras' => 'erkanmaras@gmail.com' }
   s.source           = { :path => '.' }
   s.source_files = 'Classes/**/*'
   s.dependency 'Flutter'
