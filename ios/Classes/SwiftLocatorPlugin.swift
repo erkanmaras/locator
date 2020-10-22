@@ -18,7 +18,8 @@ public class SwiftLocatorPlugin: NSObject, FlutterPlugin, CLLocationManagerDeleg
         SwiftLocatorPlugin.locationManager = CLLocationManager()
         SwiftLocatorPlugin.locationManager?.delegate = self
         SwiftLocatorPlugin.locationManager?.requestAlwaysAuthorization()
-
+        SwiftLocatorPlugin.locationManager?.desiredAccuracy = kCLLocationAccuracyNearestTenMeters
+        SwiftLocatorPlugin.locationManager?.distanceFilter = 20
         SwiftLocatorPlugin.locationManager?.allowsBackgroundLocationUpdates = true
         if #available(iOS 11.0, *) {
             SwiftLocatorPlugin.locationManager?.showsBackgroundLocationIndicator = true;
@@ -41,8 +42,8 @@ public class SwiftLocatorPlugin: NSObject, FlutterPlugin, CLLocationManagerDeleg
     }
     
     public func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
-        if status == .authorizedAlways {
-           
+        if status != .authorizedAlways {
+           manager.requestAlwaysAuthorization()
         }
     }
     
