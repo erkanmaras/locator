@@ -25,15 +25,13 @@ public class SwiftLocatorPlugin: NSObject, FlutterPlugin, CLLocationManagerDeleg
             SwiftLocatorPlugin.locationManager?.showsBackgroundLocationIndicator = true;
         }
         SwiftLocatorPlugin.locationManager?.pausesLocationUpdatesAutomatically = false
-
-       // SwiftLocatorPlugin.channel?.invokeMethod("location", arguments: "method")
-
+        
         if (call.method == "start_location_service") {
-           // SwiftLocatorPlugin.channel?.invokeMethod("location", arguments: "start_location_service")
             SwiftLocatorPlugin.locationManager?.startUpdatingLocation()
+            result(true)
         } else if (call.method == "stop_location_service") {
-           // SwiftLocatorPlugin.channel?.invokeMethod("location", arguments: "stop_location_service")
             SwiftLocatorPlugin.locationManager?.stopUpdatingLocation()
+            result(true)
         } else if (call.method == "last_location") {
             result(locationToMap(location:SwiftLocatorPlugin.locationManager?.location));
         } else {
