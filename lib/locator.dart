@@ -4,25 +4,29 @@ import 'package:flutter/services.dart';
 
 class Locator {
   static const MethodChannel _channel = const MethodChannel('exm_locator');
-
+  static bool locating = false;
   static Future<void> start({
     String notificationTitle,
     String notificationText,
     int updateIntervalInSecond,
-  }) {
-    notificationTitle ??= "";
-    notificationText ??= "";
+  }) async {
+    notificationTitle ??= '';
+    notificationText ??= '';
     updateIntervalInSecond ??= 10;
     var arguments = <String, dynamic>{
-      "notificationTitle": notificationTitle,
-      "notificationText": notificationText,
-      "updateIntervalInSecond": updateIntervalInSecond
+      'notificationTitle': notificationTitle,
+      'notificationText': notificationText,
+      'updateIntervalInSecond': updateIntervalInSecond
     };
-    return _channel.invokeMethod('start_location_service', arguments);
+    var result = await _channel.invokeMethod('start_location_service', arguments);
+    locating = true;
+    return result;
   }
 
-  static Future<void> stop() {
-    return _channel.invokeMethod('stop_location_service');
+  static Future<void> stop() async {
+    locating = false;
+    var result = await _channel.invokeMethod('stop_location_service');
+    return result;
   }
 
   /// Get the last location once.
@@ -30,13 +34,13 @@ class Locator {
     Map<dynamic, dynamic> map = await _channel.invokeMethod('last_location');
 
     return Location(
-      latitude: map["latitude"],
-      longitude: map["longitude"],
-      altitude: map["altitude"],
-      accuracy: map["accuracy"],
-      bearing: map["bearing"],
-      speed: map["speed"],
-      time: map["time"],
+      latitude: map['latitude'],
+      longitude: map['longitude'],
+      altitude: map['altitude'],
+      accuracy: map['accuracy'],
+      bearing: map['bearing'],
+      speed: map['speed'],
+      time: map['time'],
     );
   }
 
@@ -45,18 +49,18 @@ class Locator {
   static void getLocations(Function(Location) location) {
     // add a handler on the channel to recive updates from the native classes
     _channel.setMethodCallHandler((MethodCall methodCall) async {
-      if (methodCall.method == "location") {
+      if (methodCall.method == 'location') {
         Map locationData = Map.from(methodCall.arguments);
         // Call the user passed function
         location(
           Location(
-            latitude: locationData["latitude"],
-            longitude: locationData["longitude"],
-            altitude: locationData["altitude"],
-            accuracy: locationData["accuracy"],
-            bearing: locationData["bearing"],
-            speed: locationData["speed"],
-            time: locationData["time"],
+            latitude: locationData['latitude'],
+            longitude: locationData['longitude'],
+            altitude: locationData['altitude'],
+            accuracy: locationData['accuracy'],
+            bearing: locationData['bearing'],
+            speed: locationData['speed'],
+            time: locationData['time'],
           ),
         );
       }
@@ -88,7 +92,15 @@ class Location {
   }
 
   @override
-  int get hashCode => hashValues(latitude, longitude, altitude, accuracy, bearing, speed, time);
+  int get hashCode => hashValues(
+        latitude,
+        longitude,
+        altitude,
+        accuracy,
+        bearing,
+        speed,
+        time,
+      );
 }
 
 class LocatorException {}
