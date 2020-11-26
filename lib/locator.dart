@@ -91,7 +91,7 @@ class Locator {
     return earthRadius * c;
   }
 
-  static _toRadians(double degree) {
+  static double _toRadians(double degree) {
     return degree * math.pi / 180;
   }
 }
